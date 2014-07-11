@@ -1,0 +1,30 @@
+Name								Type				
+
+ID									BigInt						Index			PrimaryKey
+ListingID							BigInt						Index
+AdjustedClosePrice					Decimal						
+AdjustedHighPrice					Decimal
+AdjustedLowPrice					Decimal
+TradedQuantity						BigInt
+PriceDate							DateTime					Index
+RSI									Decimal
+UpperBollingerBand					Decimal
+MiddleBollingerBand					Decimal
+LowerBollingerBand					Decimal
+CCI									Decimal
+FastStochastic						Decimal
+SlowStochastic						Decimal
+SMA20								Decimal
+SMA50								Decimal
+EMA20								Decimal
+EMA50								Decimal
+MACDline							Decimal
+MACDsignal							Decimal
+MACD_Histogram						Decimal
+ADX									Decimal
+ATR									Decimal
+AroonOscillator						Decimal
+WilliamR							Decimal
+ROC									Decimal
+UltimateOscillator					Decimal
+MFI									Decimal
