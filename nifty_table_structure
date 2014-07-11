@@ -1,18 +1,18 @@
 Name							Type
 
-ID								BigInt
-ListingID						BigInt
-PriceDate						DateTime
+ID								BigInt					Index
+ListingID						BigInt					Index
+PriceDate						DateTime				Index
 OpenPrice						decimal
 HighPrice						decimal
 LowPrice						decimal
 ClosePrice						decimal
 TradingDayCloseIndicator		varchar
 TradedValue						decimal
-TradedQuantity					BigInt
+TradedQuantity					BigInt					Index
 NumberOfTrades					BigInt
 Modified						datetime
 IsAdjustedClosePrice			varchar
-AdjustedClosePrice				decimal
-AdjustedHighPrice				decimal
-AdjustedLowPrice				decimal
+AdjustedClosePrice				decimal					Index
+AdjustedHighPrice				decimal					Index
+AdjustedLowPrice				decimal					Index
