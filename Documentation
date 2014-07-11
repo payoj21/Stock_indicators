@@ -1,0 +1,170 @@
+Objective
+The objective of the project is to setup a database of stocks with given prices, dates, volumes etc. and to calculate values of various
+indicators from the given data and use these values to get inferences according to the need. For example, suggesting consumers whether 
+to buy or sell the shares for a particular stock based on the values of these indicators, or getting top 10 or 100 stocks for which 
+certain indicators’ values are crossing particular marks at that time, or to make a predictive model where we can predict which stock 
+could go up or down based on the indicators’ values.
+ 
+Required libraries
+com.mysql.jdbc.PreparedStatement;
+java.sql.Connection;
+java.sql.DriverManager;
+java.sql.ResultSet;
+java.sql.Statement;
+com.tictactec.ta.lib.*
+mysql-connector-java-5.6.1-bin.jar
+ta-lib.jar
+ 
+Classes
+Class main.java – Main class that runs the program
+DBConnect.java – Contains all the code
+ 
+Functions
+DBconnect() – creates connection between java file and database.
+Data() – Does all the calculations. Takes input from the database table ‘nifty’, calculates various indicators, outputs these 
+indicators into the database table ‘nifty_studies’.
+ 
+What does the code do?
+-      First connects the java program to MySQL database.
+-      Checks whether the table ‘nifty_studies’ is empty or not by checking the MAXIMUM or the LARGEST date present the nifty_studies.
+If the MAX (Date) gives the output as null then the table is empty otherwise it is filled.
+-      If the table nifty_studies is empty then the code will run first time taking whole data from the table ‘nifty’ and calculates 
+various indicator values.
+-      If the table ‘nifty_studies ’ is empty
+·         MySQL queries are called to get number of rows and data from the table.
+·         After getting the data in different arrays, various indicators values are calculated and these indicator values are inserted
+into the table ‘nify_studies’.
+·         Different indicators which are being calculated are –
+1)      RSI – Relative Strength Index
+2)      CCI – Commodity Channel Index
+3)      Bollinger Bands
+4)      Simple Moving Average (SMA)
+5)      Exponential Moving Average(EMA)
+6)      MACD – Moving Average Convergence Divergence
+7)      Stochastic Oscillator – Uses Simple Moving Average to calculate the values. Other types of moving averages can also be used 
+according to smoothing requirement.
+8)      StochasticRSI
+9)      ADX – Average Directional Index
+10)   ATR – Average True Range
+11)   MFI – Money Flow Index
+12)   Aroon Oscillator
+13)   William %R
+14)   ROC
+15)   Parabolic SAR
+·         These indicators along with ID, LISTINGID, Price Date, Volume, Adjusted Close Price, Adjusted High Price and Adjusted Low 
+Price are inserted into database table ’nifty_studies’.
+-          If the table ‘nifty_studies’ is filled we update the table with the latest data.
+·         Certain queries are called to get data and number of rows in the database table ‘nifty’.
+·         Data for last 1 year or approx. 200 days is being taken from the table ‘nifty’ to calculate indicators values and update them
+in the table ‘nifty_studies’.
+·         These new values for which data was not available in the table ‘nifty_studies’ are inserted (similarly as was in the first 
+case) into it.
+ 
+Checks –
+Certain kinds of checks are inserted in the code to assure there is no error related to them.
+1)   Whether table ‘nifty_studies’ is empty or not so to know whether the table has to be updated or has to be filled for the first 
+time. For this I have called the query which gets the largest date in the table. If date is null then the table is empty else it is 
+filled.
+2)   Numbers of rows for a particular listingid are greater or equal to the time period of the indicators. Such checks are inserted for
+indicators which don’t need smoothing like CCI, SMA, Bollinger Bands, Aroon Oscillator. If the numbers of rows for a particular 
+listingid are less than the time period of an indicator then calculation for that indicator is dropped as there are not sufficient 
+amount of data to calculate the value of that indicator.
+3)   Numbers of rows for a particular listingid are greater or equal to 200. Such checks are inserted for indicators which need 
+smoothing like RSI, ADX, MACD, EMA. If the numbers of rows for a particular listingid are less than the time period of an indicator 
+then calculation for that indicator is dropped as there are not sufficient amount of data to calculate the value of that indicator.
+4)   Checks on Volume indicators – Indicators which use volume for calculations should check where a particular listingid is a indices 
+or not. Indices don’t have volume, so such indicators are not calculated for indices.
+ 
+Outputs-
+Getting the output for each indicator –
+
+1)  	RSI - Stock is oversold when RSI is below 20. Shares should be bought when RSI is less than 30. Shares should be sold when RSI is greater than 70. Stock is overbought when RSI is above 80. When RSI is between 30 and 70, action is neutral.
+·         Stocks with RSI below 20-  Oversold, Strong buy signal
+·         Stocks with RSI between 20 and 30- Buy Signal (can be considered as oversold situation)
+·         Stocks with RSI between 30 and 70 - Neutral
+·         Stocks with RSI between 70 and 80 - Sell Signal (can be considered as overbought situation)
+·         Stocks with RSI above 80 - OverBought, Strong Sell signal
+·         Stocks which crossed RSI below 20 - Stocks which were above 20 the previous day but crossed below 20 today. Oversold (strong buy zone)
+·         Stocks which crossed RSI above 20 - Stocks which were below 20 the previous day but crossed above 20 today. Price Rise took place. Still a buy signal if less than 30.
+·         Stocks which crossed RSI below 30 - Stocks which were above 30 the previous day but crossed below 30 today. From neutral zone the stock has come to buy zone.
+·         Stocks which crossed RSI above 30 - Stocks which were below 30 the previous day but crossed above 30 today. From buy zone the stock has come to the neutral zone.
+·         Stocks which crossed RSI below 70 - Stocks which were above 70 the previous day but crossed below 70 today. From sell zone the stock has come to the neutral zone.
+·         Stocks which crossed RSI above 70 - Stocks which were below 70 the previous day but has crossed above 70 today. From neutral zone the stock has come to sell zone.
+·         Stocks which crossed RSI below 80 - Stocks which were above 80 the previous day but has crossed below 80 today. From overbought zone the stock has come to sell zone.
+·         Stocks which crossed RSI above 80 - Stocks which were below 80 the previous day but has crossed above 80 today. From sell zone the stock has come to overbought zone (a strong sell zone).
+
+2)  	SMA crossovers- Shares should be bought when the slower moving (SMA-50) average crosses below the faster moving average (SMA-20) and they should be sold when the faster moving average (SMA-20) crosses below the slower moving average (SMA-50). When the closing price is above moving average then it is a bullish market. When the closing price is below moving average then it is a bearish market.
+	Faster the moving average, lesser will be the lag. So, a downtrend in slow moving average doesn’t mean a downtrend in faster moving average.
+·         Stocks with close above SMA-20 - uptrend.
+·         Stocks with close above SMA-50 - uptrend
+·         Stocks with close below SMA-20 - downtrend
+·         Stocks with close below SMA-50 - downtrend
+·         Stocks which crossed above SMA-20 - bullish signal
+·         Stocks which crossed above SMA-50 - bullish signal
+·         Stocks which crossed below SMA-20 - bearish signal
+·         Stocks which crossed below SMA-50 - bearish signal
+·         SMA-20 crossed above SMA-50 - buy signal
+·         SMA-50 crossed above SMA-20 - sell signal
+
+3)  	EMA crossovers- Shares should be bought when the slower moving (EMA-50) average crosses below the faster moving average (EMA-20) and they should be sold when the faster moving average (EMA-20) crosses below the slower moving average (EMA-50). When the closing price is above moving average then it is a bullish market. When the closing price is below moving average then it is a bearish market.
+Faster the moving average, lesser will be the lag. So, a downtrend in slow moving average doesn’t mean a downtrend in faster moving average.
+·         Stocks with close above EMA-20 - uptrend.
+·         Stocks with close above EMA-50 - uptrend
+·         Stocks with close below EMA-20 - downtrend
+·         Stocks with close below EMA-50 - downtrend
+·         Stocks which crossed above EMA-20 - bullish signal
+·         Stocks which crossed above EMA-50 - bullrish signal
+·         Stocks which crossed below EMA-20 - bearish signal
+·         Stocks which crossed below EMA-50 - bearish signal
+·         EMA-20 crossed above EMA-50 - buy signal
+·         EMA-50 crossed above EMA-20 - sell signal
+
+4)  	MACD crossovers- Shares should be bought when it is a bearish crossover while they should be sold when it is a bullish crossovers. In other words, there is a bullish crossover when histogram crosses over 0 while there is a bearish crossover when histogram crosses below 0.
+·         Bullish crossover – Stocks with MACD line crossing above Signal line
+·         Bearish crossover – Stocks with MACD line crossing below Signal Line
+
+5)  	Bollinger Band- Close above UBB implies it is a sell signal, Close below LBB implies buy signal but not always.Ideally, prices should be between UBB and LBB. Bollinger Bands should not be used as a stand alone tool. It should be combined with other techincal tools to analyse. 
+·         Stocks with close above upper Bollinger band - Sell signal
+·         Stocks with close crossed above upper Bollinger Band - Uptrend
+·         Stocks with close crossed above lower Bollinger Band - uptrend
+·         Stocks with close below lower Bollinger band - Buy signal
+·         Stocks with close crossed below upper Bollinger Band - downtrend
+·         Stocks with close crossed below lower Bollinger Band - downtrend
+
+6)  	CCI- Calculated the difference between price change and the average price change.
+CCI above 200 is an overbought or a strong sell signal. CCI below -200 is an oversold or a strong buy signal. Securities can continue moving higher after an indicator becomes overbought. Likewise, securities can continue moving lower after an indicator becomes oversold.  
+·         Stocks with CCI moved above 100 - bullish signal
+·         Stocks with CCI moved below  -100 - bearish signal
+·         Stocks with CCI moved above 200 - overbought
+·         Stocks with CCI moved below -200 - oversold
+
+7)  	MFI- Similar to RSI, includes volume which helps in increasing lead time. Typically, MFI above 80 is considered overbought and MFI below 20 is considered oversold. 
+·         MFI above 80 - overbought
+·         MFI crossed above 80 - sell zone to strong sell zone
+·         MFI below 20 - oversold
+·         MFI crossed below 20 - buy zone to strong buy zone
+
+8)  	Stochastic - Overbought means a string sell signal while an Oversold means a strong buy signal.
+·         Overbought – Fast Stochastic above 80
+·         OverSold -  Fast Stochastic below 20
+	Bullish Crossover - When Fast Stochastic crosses over Slow Stochastic.
+      Bearish Crossover - When Fast Stochastic crosses below Slow Stochastic. 
+9)  	Aroon Oscillator- Difference between Aroon Up and Aroon Down. Oscillator above 0 means that prices are making more new highs than new lows. This means an uptrend. Oscillator below 0 means that prices are making more new lows than new highs. This means a downtrend. Oscillator above 70 means start of uptrend and below -70 means start of an downtrend.
+·         Aroon Oscillator moved above 70 - Uptrend starts
+·         Aroon Oscillator moved below -70 - downtrend starts 
+·         Aroon Oscillator turned positive - more new highs than lows
+·         Aroon Oscillator turned negative - more new lows than highs
+
+10)   William %R-  -50 acts as a centreline. It measures the level of close relative to the highest highs in the period. 
+·         William %R moved above  -10 - Overbought (strong signal)
+·         William %R moved above  -20 - overbought (Sell signal)
+	William %R below -20 and above -40 - slightly Buy signal
+      William %R above -60 and below -40 - Neutral
+      William %R above -80 and below -60 -  slightly sell signal
+·         William %R moved below  -80 - oversold 
+·         William %R moved below  -90 - Oversold (strong buy)
+overbought is not necessarily bearish and oversold is not necessarily bullish.
+
+11)  ROC (Rate of Change) - rate in change in price (more useful for intraday trading).
+	-    ROC crossed above 0 - buy signal
+	-    ROC crossed below 0 - sell signal 
